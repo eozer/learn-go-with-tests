@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - go run .
+  test:
+    cmds:
+      - go test
+    sources:
+    - ./*.go
+    method: none

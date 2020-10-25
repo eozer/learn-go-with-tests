@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - go run .
+  test:
+    cmds:
+      - go test -v
+    sources:
+    - ./*.go
+    method: none
+  gendoc:
+    cmds:
+      - rm -rf doc
+      - nohup godoc --http=:6060 -goroot=$HOME/go >/dev/null 2>&1 &
+      - sleep 5
+      - wget -r -np -N -E -p -k -e robots=off http://localhost:6060/pkg/github.com/eozer/learn-go-with-tests/integers/ || true
+      - killall -9 godoc
+      - mv localhost:6060 doc
