@@ -1,6 +1,9 @@
 package sum
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestSum(t *testing.T) {
 	t.Run("sum of 5 numbers, fixed (nope) size", func(t *testing.T) {
@@ -21,5 +24,23 @@ func TestSum(t *testing.T) {
 			t.Errorf("expected %d, got %d", expected, actual)
 		}
 	})
+}
 
+func TestSumAll(t *testing.T) {
+	t.Run("given 1 slice", func(t *testing.T) {
+		actual := SumAll([]int{1, 2, 3, 4, 5}, []int{1, 2, 3})
+		expected := []int{15, 6}
+		// NOTE: we cannot compare slices like actual != expected, we need to use:
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("expected %d, got %d", expected, actual)
+		}
+	})
+
+	t.Run("given 2 slices", func(t *testing.T) {
+		actual := SumAll([]int{1, 2, 4})
+		expected := []int{7}
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("expected %d, got %d", expected, actual)
+		}
+	})
 }
