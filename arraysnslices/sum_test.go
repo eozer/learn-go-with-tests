@@ -44,3 +44,30 @@ func TestSumAll(t *testing.T) {
 		}
 	})
 }
+
+func TestSumTails(t *testing.T) {
+	t.Run("sum tails", func(t *testing.T) {
+		actual := SumAllTails([]int{4, 5}, []int{2, 3})
+		expected := []int{5, 3}
+		// NOTE: we cannot compare slices like actual != expected, we need to use:
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("expected %d, got %d", expected, actual)
+		}
+	})
+	t.Run("2nd test case sum tails", func(t *testing.T) {
+		actual := SumAllTails([]int{4, 5, 6}, []int{2, 3, 1})
+		expected := []int{11, 4}
+		// NOTE: we cannot compare slices like actual != expected, we need to use:
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("expected %d, got %d", expected, actual)
+		}
+	})
+	t.Run("empty slice, sum tails", func(t *testing.T) {
+		actual := SumAllTails([]int{}, []int{2, 3, 1})
+		expected := []int{0, 4}
+		// NOTE: we cannot compare slices like actual != expected, we need to use:
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("expected %d, got %d", expected, actual)
+		}
+	})
+}

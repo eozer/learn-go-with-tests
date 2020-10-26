@@ -26,10 +26,23 @@ func Sum(numbers []int) int {
 // SumAll computes n: len(numbersToSum) arrays and returns
 // NOTE: This is how we write a variadic functions
 func SumAll(numbersToSum ...[]int) []int {
-	count := len(numbersToSum)
-	sums := make([]int, count)
-	for i, array := range numbersToSum {
-		sums[i] = Sum(array)
+	var sums []int
+	for _, array := range numbersToSum {
+		sums = append(sums, Sum(array))
+	}
+	return sums
+}
+
+// SumAllTails
+func SumAllTails(numbersToSum ...[]int) []int {
+	var sums []int
+	for _, array := range numbersToSum {
+		if len(array) == 0 {
+			sums = append(sums, 0)
+		} else {
+			tail := array[1:]
+			sums = append(sums, Sum(tail))
+		}
 	}
 	return sums
 }
