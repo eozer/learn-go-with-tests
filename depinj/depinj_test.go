@@ -8,7 +8,7 @@ import (
 func TestSearch(t *testing.T) {
 
 	t.Run("initial test", func(t *testing.T) {
-		buffer := bytes.Buffer{} // bytes i
+		buffer := bytes.Buffer{}
 		Greet(&buffer, "Foobar")
 		got := buffer.String()
 		want := "Hello Foobar"
