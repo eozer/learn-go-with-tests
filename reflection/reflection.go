@@ -17,26 +17,25 @@ func getValue(x interface{}) reflect.Value {
 func walk(x interface{}, fn func(string)) {
 	val := getValue(x)
 
-	// slices
-	if val.Kind() == reflect.Slice {
-		for i := 0; i < val.Len(); i++ {
-			walk(val.Index(i).Interface(), fn)
-		}
-		return
+	walkUtil := func(value reflect.Value) {
+		walk(value.Interface(), fn)
 	}
 
-	// struct fields
-	var fieldCount int
-	if val.Kind().String() == "struct" {
-		fieldCount = val.NumField()
-	}
-	for i := 0; i < fieldCount; i++ {
-		field := val.Field(i)
-		switch field.Kind() {
-		case reflect.String:
-			fn(field.String())
-		case reflect.Struct:
-			walk(field.Interface(), fn)
+	switch val.Kind() {
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < val.Len(); i++ {
+			walkUtil(val.Index(i))
 		}
+	case reflect.Struct:
+		for i := 0; i < val.NumField(); i++ {
+			walkUtil(val.Field(i))
+		}
+	case reflect.Map:
+		for _, key := range val.MapKeys() {
+			walkUtil(val.MapIndex(key))
+		}
+	case reflect.String:
+		fn(val.String())
 	}
+
 }
