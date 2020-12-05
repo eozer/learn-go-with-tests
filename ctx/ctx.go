@@ -1,12 +1,13 @@
 package ctx
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 )
 
 type Store interface {
-	Fetch() string
+	Fetch(ctx context.Context) (string, error)
 	Cancel()
 }
 
@@ -24,7 +25,25 @@ func (s *StubStore) Cancel() {
 
 func Server(store Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		store.Cancel()
-		fmt.Fprint(w, store.Fetch())
+		data, _ := store.Fetch(r.Context())
+		fmt.Fprint(w, data)
+		/*
+			ctx := r.Context()
+
+			data := make(chan string, 1)
+
+			go func() {
+				data <- store.Fetch()
+			}()
+
+			select {
+			// if we receive data as a result of goroutine doing store.Fetch()
+			case d := <-data:
+				fmt.Fprint(w, d)
+			// if done is from request for cancelling the request.
+			case <-ctx.Done():
+				store.Cancel()
+			}
+		*/
 	}
 }
