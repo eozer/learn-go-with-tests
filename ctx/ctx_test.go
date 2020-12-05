@@ -2,6 +2,7 @@ package ctx
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -58,6 +59,24 @@ func (s *SpyStore) assertWasNotCancelled() {
 	}
 }
 
+type SpyResponseWriter struct {
+	written bool
+}
+
+func (s *SpyResponseWriter) Header() http.Header {
+	s.written = true
+	return nil
+}
+
+func (s *SpyResponseWriter) Write([]byte) (int, error) {
+	s.written = true
+	return 0, errors.New("not implemented")
+}
+
+func (s *SpyResponseWriter) WriteHeader(statusCode int) {
+	s.written = true
+}
+
 func TestHandler(t *testing.T) {
 
 	data := "hello, world"
@@ -89,10 +108,14 @@ func TestHandler(t *testing.T) {
 		time.AfterFunc(5*time.Millisecond, cancel)
 		request = request.WithContext(cancellingCtx)
 
-		response := httptest.NewRecorder()
+		// response := httptest.NewRecorder()
+		response := &SpyResponseWriter{}
 
 		svr.ServeHTTP(response, request)
 
+		if response.written {
+			t.Error("a response should not have been written")
+		}
 		// store.assertWasCancelled()
 	})
 }
