@@ -116,6 +116,6 @@ func TestHandler(t *testing.T) {
 		if response.written {
 			t.Error("a response should not have been written")
 		}
-		// store.assertWasCancelled()
+		store.assertWasCancelled()
 	})
 }

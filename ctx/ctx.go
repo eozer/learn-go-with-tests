@@ -15,7 +15,7 @@ type StubStore struct {
 	response string
 }
 
-func (s *StubStore) Fetch() string {
+func (s *StubStore) Fetch(ctx context.Context) string {
 	return s.response
 }
 
