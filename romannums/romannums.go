@@ -1,13 +1,27 @@
 package romannums
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type RomanNumeral struct {
 	Value  int
 	Symbol string
 }
 
-var romanNumerals = []RomanNumeral{
+type RomanNumerals []RomanNumeral
+
+func (r RomanNumerals) ValueOf(symbol string) int {
+	for _, s := range r {
+		if s.Symbol == symbol {
+			return s.Value
+		}
+	}
+	return 0
+}
+
+var allRomanNumerals = RomanNumerals{
 	{1000, "M"},
 	{900, "CM"},
 	{500, "D"},
@@ -25,15 +39,40 @@ var romanNumerals = []RomanNumeral{
 
 func ConvertToRoman(arabic int) string {
 	var result strings.Builder
-
-	for _, romannum := range romanNumerals {
+	for _, romannum := range allRomanNumerals {
 		for arabic >= romannum.Value {
 			result.WriteString(romannum.Symbol)
 			arabic -= romannum.Value
 		}
 	}
-
 	return result.String()
+}
+
+func ConvertToArabic(roman string) int {
+	total := 0
+
+	for i := 0; i < len(roman); i++ {
+		symbol := roman[i]
+		// look ahead to next symbol if we can and, the current symbol is base 10 (only valid subtractors)
+		if i+1 < len(roman) && symbol == 'I' {
+			nextSymbol := roman[i+1]
+			potentialNumber := string([]byte{symbol, nextSymbol})
+			value := allRomanNumerals.ValueOf(potentialNumber)
+
+			fmt.Println(potentialNumber, value)
+			if value != 0 {
+				total += value
+				i++
+			} else {
+				total++
+			}
+		} else {
+			total++
+		}
+		fmt.Println("total: ", total)
+	}
+
+	return total
 }
 
 // NOTE: exercise claims that string builder is more efficient than
@@ -42,7 +81,7 @@ func ConvertToRoman(arabic int) string {
 // approach won against the builder way.
 func ConvertToRomanNoStringBuilder(arabic int) string {
 	result := ""
-	for _, romannum := range romanNumerals {
+	for _, romannum := range allRomanNumerals {
 		for arabic >= romannum.Value {
 			result += romannum.Symbol
 			arabic -= romannum.Value
