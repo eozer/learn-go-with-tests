@@ -6,13 +6,13 @@ import (
 )
 
 type RomanNumeral struct {
-	Value  int
+	Value  uint16
 	Symbol string
 }
 
 type RomanNumerals []RomanNumeral
 
-func (r RomanNumerals) ValueOf(symbols ...byte) int {
+func (r RomanNumerals) ValueOf(symbols ...byte) uint16 {
 	symbol := string(symbols)
 	for _, s := range r {
 		if s.Symbol == symbol {
@@ -49,7 +49,10 @@ var allRomanNumerals = RomanNumerals{
 }
 
 // ConvertToRoman converts arabic integer to a Roman numeral in strings.
-func ConvertToRoman(arabic int) string {
+func ConvertToRoman(arabic uint16) (string, error) {
+	if arabic > 3999 {
+		return "", fmt.Errorf("maximum possible roman number can be converted to 3999, given %d", arabic)
+	}
 	var result strings.Builder
 	for _, romannum := range allRomanNumerals {
 		for arabic >= romannum.Value {
@@ -57,14 +60,14 @@ func ConvertToRoman(arabic int) string {
 			arabic -= romannum.Value
 		}
 	}
-	return result.String()
+	return result.String(), nil
 }
 
 // NOTE: exercise claims that string builder is more efficient than
 // plain string concat operation. For this exercise I did not observe
 // a clear winner. Difference was small and sometimes NoStringBuilder
 // approach won against the builder way.
-func ConvertToRomanNoStringBuilder(arabic int) string {
+func ConvertToRomanNoStringBuilder(arabic uint16) string {
 	result := ""
 	for _, romannum := range allRomanNumerals {
 		for arabic >= romannum.Value {
@@ -94,7 +97,7 @@ func isSubtractiveSymbol(symbol byte) bool {
 	return symbol == 'I' || symbol == 'X' || symbol == 'C'
 }
 
-func ConvertToArabic(roman string) (total int) {
+func ConvertToArabic(roman string) (total uint16) {
 	splits := SplitSymbols(roman)
 	fmt.Printf("%s\n", splits)
 	for _, symbols := range splits {

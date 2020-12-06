@@ -2,11 +2,13 @@ package romannums
 
 import (
 	"fmt"
+	"log"
 	"testing"
+	"testing/quick"
 )
 
 var testcases = []struct {
-	Arabic int
+	Arabic uint16
 	Roman  string
 }{
 	{1, "I"},
@@ -55,7 +57,7 @@ func TestConvertToRoman(t *testing.T) {
 	for _, test := range testcases {
 		description := fmt.Sprintf("%d gets converted to %q", test.Arabic, test.Roman)
 		t.Run(description, func(t *testing.T) {
-			got := ConvertToRoman(test.Arabic)
+			got, _ := ConvertToRoman(test.Arabic)
 			if got != test.Roman {
 				t.Errorf("got %q, want %q", got, test.Roman)
 			}
@@ -72,5 +74,24 @@ func TestConvertToArabic(t *testing.T) {
 				t.Errorf("got %q, want %q", got, test.Arabic)
 			}
 		})
+	}
+}
+
+func TestPropertiesOfConversion(t *testing.T) {
+	assertion := func(arabic uint16) bool {
+		if arabic > 3999 {
+			return true
+		}
+		log.Println(arabic)
+		roman, _ := ConvertToRoman(arabic)
+		fromRoman := ConvertToArabic(roman)
+		return fromRoman == arabic
+	}
+
+	cfg := quick.Config{
+		MaxCount: 1000,
+	}
+	if err := quick.Check(assertion, &cfg); err != nil {
+		t.Error("failed checks", err)
 	}
 }
