@@ -22,6 +22,16 @@ func (r RomanNumerals) ValueOf(symbols ...byte) int {
 	return 0
 }
 
+func (r RomanNumerals) Exists(symbols ...byte) bool {
+	symbol := string(symbols)
+	for _, s := range r {
+		if s.Symbol == symbol {
+			return true
+		}
+	}
+	return false
+}
+
 var allRomanNumerals = RomanNumerals{
 	{1000, "M"},
 	{900, "CM"},
@@ -38,6 +48,7 @@ var allRomanNumerals = RomanNumerals{
 	{1, "I"},
 }
 
+// ConvertToRoman converts arabic integer to a Roman numeral in strings.
 func ConvertToRoman(arabic int) string {
 	var result strings.Builder
 	for _, romannum := range allRomanNumerals {
@@ -47,35 +58,6 @@ func ConvertToRoman(arabic int) string {
 		}
 	}
 	return result.String()
-}
-
-func couldBeSubtractive(i int, symbol byte, roman string) bool {
-	isSubtractiveSymbol := symbol == 'I' || symbol == 'X' || symbol == 'C'
-	return i+1 < len(roman) && isSubtractiveSymbol
-}
-
-func ConvertToArabic(roman string) int {
-	total := 0
-
-	for i := 0; i < len(roman); i++ {
-		symbol := roman[i] // this is byte/uint8 type.
-		fmt.Print(symbol, " ")
-		// look ahead to next symbol if we can and, the current symbol is base 10 (only valid subtractors)
-		if couldBeSubtractive(i, symbol, roman) {
-			nextSymbol := roman[i+1]
-			if value := allRomanNumerals.ValueOf(symbol, nextSymbol); value != 0 {
-				total += value
-				i++
-			} else {
-				total += allRomanNumerals.ValueOf(symbol)
-			}
-		} else {
-			total += allRomanNumerals.ValueOf(symbol)
-		}
-		fmt.Println("total: ", total)
-	}
-
-	return total
 }
 
 // NOTE: exercise claims that string builder is more efficient than
@@ -91,4 +73,32 @@ func ConvertToRomanNoStringBuilder(arabic int) string {
 		}
 	}
 	return result
+}
+
+func SplitSymbols(w string) (symbols [][]byte) {
+	for i := 0; i < len(w); i++ {
+		symbol := w[i]
+		notAtEnd := i+1 < len(w)
+
+		if notAtEnd && isSubtractiveSymbol(symbol) && allRomanNumerals.Exists(symbol, w[i+1]) {
+			symbols = append(symbols, []byte{symbol, w[i+1]})
+			i++
+		} else {
+			symbols = append(symbols, []byte{symbol})
+		}
+	}
+	return
+}
+
+func isSubtractiveSymbol(symbol byte) bool {
+	return symbol == 'I' || symbol == 'X' || symbol == 'C'
+}
+
+func ConvertToArabic(roman string) (total int) {
+	splits := SplitSymbols(roman)
+	fmt.Printf("%s\n", splits)
+	for _, symbols := range splits {
+		total += allRomanNumerals.ValueOf(symbols...)
+	}
+	return
 }
